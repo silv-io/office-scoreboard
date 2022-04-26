@@ -172,7 +172,7 @@ class Serverless:
             self.scope,
             name,
             function_name=name,
-            runtime=_lambda.Runtime.PYTHON_3_9(),
+            runtime=_lambda.Runtime.PYTHON_3_9,
             memory_size=memory_size,
             code=code,
             handler=handler,
