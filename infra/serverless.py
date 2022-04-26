@@ -12,11 +12,20 @@ from aws_cdk import (
 )
 from constructs import Construct
 
+STR = dynamodb.AttributeType.STRING
+NUM = dynamodb.AttributeType.NUMBER
+
+GAME = 'toplist_pk'
+PLAYER = 'toplist_sk'
+SCORE = 'score'
+FROM_SCORE = 'from_score'
+
+
 class Serverless:
     def __init__(self, scope: Construct) -> None:
         self.scope = scope
 
-    def create_application(self, id, resource_handlers, dynamo_table):
+    def create_application(self, app_id, resource_handlers, dynamo_table):
         code = _lambda.Code.from_asset('lambda/.dist/lambda.zip')
 
         if bool(dynamo_table):
@@ -26,7 +35,7 @@ class Serverless:
 
         if len(resource_handlers) > 0:
             restapi = apigateway.RestApi(
-                self.scope, '{}-api'.format(id), rest_api_name='{}-api'.format(id)
+                self.scope, '{}-api'.format(app_id), rest_api_name='{}-api'.format(app_id)
             )
 
             for resource_handler in resource_handlers:
@@ -42,7 +51,7 @@ class Serverless:
                         readonly = True
 
                     self.create_resource_handler(
-                        name=self.create_name(id, handler),
+                        name=self.create_name(app_id, handler),
                         handler=handler,
                         memory_size=memory_size,
                         code=code,
@@ -55,7 +64,7 @@ class Serverless:
 
                 elif resource_handler.get('schedule'):
                     function = self.create_function(
-                        name=self.create_name(id, handler),
+                        name=self.create_name(app_id, handler),
                         handler=handler,
                         memory_size=memory_size,
                         code=code,
@@ -63,7 +72,7 @@ class Serverless:
                         readonly=readonly,
                     )
 
-                    rule_name = '{}-rule'.format(self.create_name(id, handler))
+                    rule_name = '{}-rule'.format(self.create_name(app_id, handler))
 
                     scheduled_rule = events.Rule(
                         self.scope,
@@ -76,16 +85,17 @@ class Serverless:
                     scheduled_rule.add_target(events_targets.LambdaFunction(function))
                 else:
                     self.create_function(
-                        name=self.create_name(id, handler),
+                        name=self.create_name(app_id, handler),
                         handler=handler,
                         code=code,
                         table=ddb_table,
                         readonly=readonly,
                     )
 
-    def create_name(self, id, handler):
+    @staticmethod
+    def create_name(app_id, handler):
         return '{}-{}-function'.format(
-            id, handler.split('.')[1].replace('.', '').replace('_', '-')
+            app_id, handler.split('.')[1].replace('.', '').replace('_', '-')
         ).lower()
 
     def create_ddb_table(self, dynamo_table):

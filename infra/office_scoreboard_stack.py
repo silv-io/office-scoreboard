@@ -23,7 +23,7 @@ class OfficeScoreboardStack(Stack):
         serverless = Serverless(self)
 
         serverless.create_application(
-            id=construct_id,
+            app_id=construct_id,
             resource_handlers=[
                 {
                     'path': '/game/{game}/scoreboard',
