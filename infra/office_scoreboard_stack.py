@@ -1,19 +1,22 @@
 from aws_cdk import (
     Duration,
     Stack,
-    aws_sqs as sqs,
+    aws_dynamodb as dynamodb
 )
 from constructs import Construct
 
-class OfficeScoreboardStack(Stack):
+from serverless import Serverless
 
+STR = dynamodb.AttributeType.STRING
+NUM = dynamodb.AttributeType.NUMBER
+
+GAME = 'toplist_pk'
+PLAYER = 'toplist_sk'
+SCORE = 'score'
+FROM_SCORE = 'from_score'
+
+
+class OfficeScoreboardStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        # The code that defines your stack goes here
-
-        # example resource
-        queue = sqs.Queue(
-            self, "OfficeScoreboardQueue",
-            visibility_timeout=Duration.seconds(300),
-        )
+        serverless = Serverless(self)
