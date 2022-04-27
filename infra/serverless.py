@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_events as events,
     aws_events_targets as events_targets,
     aws_dynamodb as dynamodb,
+    aws_s3 as s3,
     Duration,
     RemovalPolicy
 )
@@ -26,7 +27,9 @@ class Serverless:
         self.scope = scope
 
     def create_application(self, app_id, resource_handlers, dynamo_table):
-        code = _lambda.Code.from_asset('lambda/.dist/lambda.zip')
+        bucket = s3.Bucket.from_bucket_name(self.scope, "HotReloadingBucket", "hot-code")
+        code = _lambda.Code.from_bucket(bucket=bucket,
+                                        key="/tmp/lambda")
 
         if bool(dynamo_table):
             ddb_table = self.create_ddb_table(dynamo_table)

@@ -17,7 +17,10 @@ services:
       - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
       - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # only required for Pro
       - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - LAMBDA_REMOTE_DOCKER=false
+      - BUCKET_MARKER_LOCAL=hot-code
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
+      - "./lambda:/tmp/lambda"
       - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
